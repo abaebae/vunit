@@ -1,0 +1,51 @@
+[libraries]
+
+vunit_lib.files = [
+    "vunit/vhdl/check/*/*.vhd",
+    "vunit/vhdl/com/*/*.vhd",
+    "vunit/vhdl/core/*/*.vhd",
+    "vunit/vhdl/data_types/*/*.vhd",
+    "vunit/vhdl/dictionary/*/*.vhd",
+    "vunit/vhdl/logging/*/*.vhd",
+    "vunit/vhdl/osvvm/*/*.vhd",
+    "vunit/vhdl/path/*/*.vhd",
+    "vunit/vhdl/random/*/*.vhd",
+    "vunit/vhdl/run/*/*.vhd",
+    "vunit/vhdl/string_ops/*/*.vhd",
+    "vunit/vhdl/verification_components/*/*.vhd",
+    "vunit/vhdl/*.vhd",
+]
+
+osvvm.files = [
+    "vunit/vhdl/osvvm/MemoryGenericPkg.vhd",
+    "vunit/vhdl/osvvm/MemoryPkg.vhd",
+    "vunit/vhdl/osvvm/MemorySupportPkg.vhd",
+    "vunit/vhdl/osvvm/MessageListPkg.vhd",
+    "vunit/vhdl/osvvm/MessagePkg.vhd",
+    "vunit/vhdl/osvvm/NamePkg.vhd",
+    "vunit/vhdl/osvvm/NameStorePkg.vhd",
+    "vunit/vhdl/osvvm/OsvvmContext.vhd",
+    "vunit/vhdl/osvvm/OsvvmGlobalPkg.vhd",
+    "vunit/vhdl/osvvm/OsvvmScriptSettingsPkg.vhd",
+    "vunit/vhdl/osvvm/OsvvmScriptSettingsPkg_default.vhd",
+    "vunit/vhdl/osvvm/OsvvmTypesPkg.vhd",
+    "vunit/vhdl/osvvm/README.md",
+    "vunit/vhdl/osvvm/RandomBasePkg.vhd",
+    "vunit/vhdl/osvvm/RandomPkg.vhd",
+    "vunit/vhdl/osvvm/RandomProcedurePkg.vhd",
+    "vunit/vhdl/osvvm/ReportPkg.vhd",
+    "vunit/vhdl/osvvm/ResizePkg.vhd",
+    "vunit/vhdl/osvvm/ResolutionPkg.vhd",
+    "vunit/vhdl/osvvm/ScoreboardGenericPkg.vhd",
+    "vunit/vhdl/osvvm/ScoreboardPkg_int.vhd",
+    "vunit/vhdl/osvvm/ScoreboardPkg_slv.vhd",
+    "vunit/vhdl/osvvm/SortListPkg_int.vhd",
+    "vunit/vhdl/osvvm/TbUtilPkg.vhd",
+    "vunit/vhdl/osvvm/TextUtilPkg.vhd",
+    "vunit/vhdl/osvvm/TranscriptPkg.vhd",
+    "vunit/vhdl/osvvm/VendorCovApiPkg.vhd",
+]
+
+JSON.files = [
+    "vunit/vhdl/JSON-for-VHDL/src/*.vhdl",
+]
