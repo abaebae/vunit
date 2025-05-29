@@ -13,16 +13,18 @@ use work.com_types_pkg.all;
 use work.stream_master_pkg.stream_master_t;
 use work.stream_slave_pkg.stream_slave_t;
 use work.sync_pkg.sync_handle_t;
+use work.id_pkg.all;
+use work.vc_pkg.all;
 
 package uart_pkg is
   type uart_master_t is record
-    p_actor : actor_t;
+    p_std_cfg : std_cfg_t;
     p_baud_rate : natural;
     p_idle_state : std_logic;
   end record;
 
   type uart_slave_t is record
-    p_actor : actor_t;
+    p_std_cfg : std_cfg_t;
     p_baud_rate : natural;
     p_idle_state : std_logic;
     p_data_length : positive;
@@ -40,11 +42,18 @@ package uart_pkg is
   constant default_baud_rate : natural := 115200;
   constant default_idle_state : std_logic := '1';
   constant default_data_length : positive := 8;
-  impure function new_uart_master(initial_baud_rate : natural := default_baud_rate;
+  impure function new_uart_master(id : id_t := null_id;
+                                  unexpected_msg_type_policy : unexpected_msg_type_policy_t := fail;
+                                  initial_baud_rate : natural := default_baud_rate;
                                   idle_state : std_logic := default_idle_state) return uart_master_t;
-  impure function new_uart_slave(initial_baud_rate : natural := default_baud_rate;
+  impure function new_uart_slave(id : id_t := null_id;
+                                 unexpected_msg_type_policy : unexpected_msg_type_policy_t := fail;
+                                 initial_baud_rate : natural := default_baud_rate;
                                  idle_state : std_logic := default_idle_state;
                                  data_length : positive := default_data_length) return uart_slave_t;
+
+  impure function get_std_cfg(uart_master : uart_master_t) return std_cfg_t;
+  impure function get_std_cfg(uart_slave : uart_slave_t) return std_cfg_t;
 
   impure function as_stream(uart_master : uart_master_t) return stream_master_t;
   impure function as_stream(uart_slave : uart_slave_t) return stream_slave_t;
@@ -56,42 +65,56 @@ end package;
 
 package body uart_pkg is
 
-  impure function new_uart_master(initial_baud_rate : natural := default_baud_rate;
+  impure function new_uart_master(id : id_t := null_id;
+                                  unexpected_msg_type_policy : unexpected_msg_type_policy_t := fail;
+                                  initial_baud_rate : natural := default_baud_rate;
                                   idle_state : std_logic := default_idle_state) return uart_master_t is
   begin
-    return (p_actor => new_actor,
+    return (p_std_cfg => create_std_cfg(id, "vunit_lib", "uart_master", unexpected_msg_type_policy),
             p_baud_rate => initial_baud_rate,
             p_idle_state => idle_state);
   end;
 
-  impure function new_uart_slave(initial_baud_rate : natural := default_baud_rate;
+  impure function new_uart_slave(id : id_t := null_id;
+                                 unexpected_msg_type_policy : unexpected_msg_type_policy_t := fail;
+                                 initial_baud_rate : natural := default_baud_rate;
                                  idle_state : std_logic := default_idle_state;
                                  data_length : positive := default_data_length) return uart_slave_t is
   begin
-    return (p_actor => new_actor,
+    return (p_std_cfg => create_std_cfg(id, "vunit_lib", "uart_slave", unexpected_msg_type_policy),
             p_baud_rate => initial_baud_rate,
             p_idle_state => idle_state,
             p_data_length => data_length);
   end;
 
+  impure function get_std_cfg(uart_master : uart_master_t) return std_cfg_t is
+  begin
+    return uart_master.p_std_cfg;
+  end;
+
+  impure function get_std_cfg(uart_slave : uart_slave_t) return std_cfg_t is
+  begin
+    return uart_slave.p_std_cfg;
+  end;
+
   impure function as_stream(uart_master : uart_master_t) return stream_master_t is
   begin
-    return stream_master_t'(p_actor => uart_master.p_actor);
+    return stream_master_t'(p_actor => get_actor(uart_master.p_std_cfg));
   end;
 
   impure function as_stream(uart_slave : uart_slave_t) return stream_slave_t is
   begin
-    return stream_slave_t'(p_actor => uart_slave.p_actor);
+    return stream_slave_t'(p_actor => get_actor(uart_slave.p_std_cfg));
   end;
 
   impure function as_sync(uart_master : uart_master_t) return sync_handle_t is
   begin
-    return uart_master.p_actor;
+    return get_actor(uart_master.p_std_cfg);
   end;
 
   impure function as_sync(uart_slave : uart_slave_t) return sync_handle_t is
   begin
-    return uart_slave.p_actor;
+    return get_actor(uart_slave.p_std_cfg);
   end;
 
   procedure set_baud_rate(signal net : inout network_t;
@@ -107,13 +130,13 @@ package body uart_pkg is
                           uart_master : uart_master_t;
                           baud_rate : natural) is
   begin
-    set_baud_rate(net, uart_master.p_actor, baud_rate);
+    set_baud_rate(net, get_actor(uart_master.p_std_cfg), baud_rate);
   end;
 
   procedure set_baud_rate(signal net : inout network_t;
                           uart_slave : uart_slave_t;
                           baud_rate : natural) is
   begin
-    set_baud_rate(net, uart_slave.p_actor, baud_rate);
+    set_baud_rate(net, get_actor(uart_slave.p_std_cfg), baud_rate);
   end;
 end package body;

@@ -7,13 +7,15 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+context work.vunit_context;
 use work.com_pkg.net;
 use work.com_pkg.receive;
 use work.com_pkg.reply;
 use work.com_types_pkg.all;
-use work.queue_pkg.all;
 use work.stream_slave_pkg.stream_pop_msg;
 use work.uart_pkg.all;
+use work.vc_pkg.all;
+use work.sync_pkg.all;
 
 entity uart_slave is
   generic (
@@ -31,9 +33,14 @@ begin
   main : process
     variable reply_msg, msg : msg_t;
     variable msg_type : msg_type_t;
+    constant key : key_t := get_entry_key(test_runner_cleanup);
   begin
-    receive(net, uart.p_actor, msg);
+    receive(net, get_actor(uart.p_std_cfg), msg);
     msg_type := message_type(msg);
+
+    lock(runner, key, get_logger(uart.p_std_cfg));
+
+    handle_sync_message(net, msg_type, msg);
 
     if msg_type = uart_set_baud_rate_msg then
       baud_rate <= pop(msg);
@@ -48,8 +55,10 @@ begin
       reply(net, msg, reply_msg);
 
     else
-      unexpected_msg_type(msg_type);
+      unexpected_msg_type(msg_type, uart.p_std_cfg);
     end if;
+
+    unlock(runner, key, get_logger(uart.p_std_cfg));
 
   end process;
 

@@ -7,13 +7,14 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+context work.vunit_context;
 use work.com_pkg.net;
 use work.com_pkg.receive;
 use work.com_types_pkg.all;
-use work.logger_pkg.all;
 use work.stream_master_pkg.stream_push_msg;
-use work.sync_pkg.handle_sync_message;
+use work.sync_pkg.all;
 use work.uart_pkg.all;
+use work.vc_pkg.all;
 
 entity uart_master is
   generic (
@@ -38,7 +39,7 @@ begin
       end procedure;
 
     begin
-      debug("Sending " & to_string(data));
+      debug(get_logger(uart.p_std_cfg), "Sending " & to_string(data));
       send_bit(not uart.p_idle_state);
       for i in 0 to data'length-1 loop
         send_bit(data(i));
@@ -49,9 +50,12 @@ begin
     variable msg : msg_t;
     variable baud_rate : natural := uart.p_baud_rate;
     variable msg_type : msg_type_t;
+    constant key : key_t := get_entry_key(test_runner_cleanup);
   begin
-    receive(net, uart.p_actor, msg);
+    receive(net, get_actor(uart.p_std_cfg), msg);
     msg_type := message_type(msg);
+
+    lock(runner, key, get_logger(uart.p_std_cfg));
 
     handle_sync_message(net, msg_type, msg);
 
@@ -60,8 +64,11 @@ begin
     elsif msg_type = uart_set_baud_rate_msg then
       baud_rate := pop(msg);
     else
-      unexpected_msg_type(msg_type);
+      unexpected_msg_type(msg_type, uart.p_std_cfg);
     end if;
+
+    unlock(runner, key, get_logger(uart.p_std_cfg));
+
   end process;
 
 end architecture;
